@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -28,9 +27,6 @@ func main() {
 	//prints the flag content to the console for debugging purpouse
 	fmt.Println("tweet: ", *tweetTag)
 
-	status := models.StatusUpdate{
-		Status: *tweetTag,
-	}
 	//model for receive cfg keys
 	newSet := models.Key{}
 	//opens the cfg.txt file, later implementations will use to retain the auth tokens
@@ -72,14 +68,7 @@ func main() {
 		log.Println(err)
 	}
 
-	buf := &bytes.Buffer{}
-	json.NewEncoder(buf).Encode(status)
-
 	res, err := client.PostForm("https://api.twitter.com/1.1/statuses/update.json", url.Values{"status": []string{*tweetTag}})
-	if err != nil {
-		log.Println(err)
-	}
-
-	fmt.Println(res)
-
+	
+	fmt.Println(res.StatusCode)
 }
