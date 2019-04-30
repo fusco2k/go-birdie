@@ -2,11 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
+
+	"github.com/mrjones/oauth"
 
 	"github.com/fusco2k/go-birdie/models"
 )
@@ -24,6 +28,9 @@ func main() {
 	//prints the flag content to the console for debugging purpouse
 	fmt.Println("tweet: ", *tweetTag)
 
+	status := models.StatusUpdate{
+		Status: *tweetTag,
+	}
 	//model for receive cfg keys
 	newSet := models.Key{}
 	//opens the cfg.txt file, later implementations will use to retain the auth tokens
@@ -48,4 +55,31 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+
+	costumer := oauth.NewConsumer(newSet.APIKey, newSet.APISecretKey, oauth.ServiceProvider{
+		RequestTokenUrl:   "https://api.twitter.com/oauth/request_token",
+		AuthorizeTokenUrl: "https://api.twitter.com/oauth/authorize",
+		AccessTokenUrl:    "https://api.twitter.com/oauth/access_token",
+	})
+
+	user := oauth.AccessToken{
+		Token:  newSet.AccessToken,
+		Secret: newSet.AccessTokenSecret,
+	}
+
+	client, err := costumer.MakeHttpClient(&user)
+	if err != nil {
+		log.Println(err)
+	}
+
+	buf := &bytes.Buffer{}
+	json.NewEncoder(buf).Encode(status)
+
+	res, err := client.PostForm("https://api.twitter.com/1.1/statuses/update.json", url.Values{"status": []string{*tweetTag}})
+	if err != nil {
+		log.Println(err)
+	}
+
+	fmt.Println(res)
+
 }
