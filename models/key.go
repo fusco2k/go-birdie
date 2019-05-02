@@ -2,6 +2,7 @@ package models
 
 //Key basic struct to unmarshall data
 type Key struct {
+	Authenticated     bool   `json:"authenticated,omitempty"`
 	APIKey            string `json:"api_key,omitempty"`
 	APISecretKey      string `json:"api_secret_key,omitempty"`
 	AccessToken       string `json:"access_token,omitempty"`
