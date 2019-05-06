@@ -9,18 +9,10 @@ import (
 	"github.com/mrjones/oauth"
 )
 
-var at, as string
-
-var c *oauth.Consumer
-
 //Authenticate a new user
-func Authenticate(key, secret string) (at, as string) {
-
-	consumerKey := "yDsQeHa6P2tfOwA1lHiWGIgCZ"
-
-	consumerSecret := "yIo6AsfmD82OyJpvMwVD7MftqPxVxmgS3eZHPqVTHWl9EEu4hP"
-
-	c = oauth.NewConsumer(
+func Authenticate(consumerKey, consumerSecret string) (at, as string) {
+	//creates a new consumer to start the auth process
+	c := oauth.NewConsumer(
 		consumerKey,
 		consumerSecret,
 		oauth.ServiceProvider{
@@ -29,27 +21,27 @@ func Authenticate(key, secret string) (at, as string) {
 			AccessTokenUrl:    "https://api.twitter.com/oauth/access_token",
 		},
 	)
-
+	//generate the get request using oob for command line
+	//receive the token and the url to continue the process
 	token, requestURL, err := c.GetRequestTokenAndUrl("oob")
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//shows the url to user auth with twitter
 	fmt.Println(requestURL)
+	//asks the pin confirmation
 	scan := bufio.NewScanner(os.Stdin)
 	fmt.Println("enter the twitter api key")
 	scan.Scan()
 	verificationCode := scan.Text()
-
+	//process the auth token
 	tk, err := c.AuthorizeToken(token, verificationCode)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	at = tk.Token
-	fmt.Println(at)
-	as = tk.Secret
-	fmt.Println(as)
-
-	return at, as
+	//shows the keys
+	fmt.Println(tk.Token)
+	fmt.Println(tk.Secret)
+	//return the codes to generate the client and the conf file
+	return tk.Token, tk.Secret
 }
