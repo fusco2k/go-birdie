@@ -22,6 +22,10 @@ func main() {
 	tweetTag := flag.String("t", "", `tweets the message under ""`)
 	//parse the flags to use the flags content
 	flag.Parse()
+	//show instructions if no arg is used
+	if flag.NArg() == 0 {
+		log.Fatalln(`use -a for start a new authentication process or -t to tweet`)
+	}
 	//crash the execution if using more than 1 argument
 	if flag.NArg() > 0 {
 		log.Fatalln(`the flag "t" only accepts 1 argument, check usage and use "" if necessary`)
@@ -40,7 +44,7 @@ func main() {
 	//------handling keys------
 
 	//model for receive cfg keys
-	newSet := models.Key{}
+	keySet := models.Key{}
 	//gets home env key
 	homedir, err := os.UserHomeDir()
 	if err != nil {
@@ -81,13 +85,13 @@ func main() {
 		cfg += str + " "
 	}
 	//decodes the key from cfg file
-	err = json.Unmarshal([]byte(cfg), &newSet)
+	err = json.Unmarshal([]byte(cfg), &keySet)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	fmt.Println(newSet)
+	fmt.Println(keySet)
 	//------handling keys end------
-	if newSet.Authenticated == false {
+	if keySet.Authenticated == false {
 		file.Close()
 		os.Remove(homedir + "/.go-birdie/cfg.key")
 		file, err := os.OpenFile(homedir+"/.go-birdie/cfg.key", os.O_CREATE|os.O_RDWR, 0777)
@@ -98,44 +102,31 @@ func main() {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		//creates a new scanner for reading user input from CLI
-		scanner := bufio.NewScanner(os.Stdin)
-		fmt.Println("enter the twitter api key")
-		scanner.Scan()
-		tk := scanner.Text()
-		fmt.Println("enter the twitter api key secret")
-		scanner.Scan()
-		ts := scanner.Text()
 		//authenticate the user
-		at, as := auth.Authenticate(tk, ts)
-		//generate the key set
-		newSet.APIKey = tk
-		newSet.APISecretKey = ts
-		newSet.Authenticated = true
-		newSet.AccessToken = at
-		newSet.AccessTokenSecret = as
+		keySet.APIKey, keySet.APISecretKey, keySet.AccessToken, keySet.AccessTokenSecret = auth.Authenticate()
+		keySet.Authenticated = true
 		//write to the cfg.key
-		file.WriteString(`{
-			"authenticated":true,
-			"api_key":"` + newSet.APIKey + `",
-			"api_secret_key":"` + newSet.APISecretKey + `",
-			"access_token":"` + newSet.AccessToken + `",
-			"access_token_secret":"` + newSet.AccessTokenSecret + `"}`)
+		file.WriteString(
+			`{"authenticated":true,
+			"api_key":"` + keySet.APIKey + `",
+			"api_secret_key":"` + keySet.APISecretKey + `",
+			"access_token":"` + keySet.AccessToken + `",
+			"access_token_secret":"` + keySet.AccessTokenSecret + `"}`)
 		file.Sync()
 	}
-	fmt.Println(newSet)
+	fmt.Println(keySet)
 	//------handling auth------
 
 	//config new costumer usign the api keys
-	costumer := oauth.NewConsumer(newSet.APIKey, newSet.APISecretKey, oauth.ServiceProvider{
+	costumer := oauth.NewConsumer(keySet.APIKey, keySet.APISecretKey, oauth.ServiceProvider{
 		RequestTokenUrl:   "https://api.twitter.com/oauth/request_token",
 		AuthorizeTokenUrl: "https://api.twitter.com/oauth/authorize",
 		AccessTokenUrl:    "https://api.twitter.com/oauth/access_token",
 	})
 	//config new user using token keys
 	user := oauth.AccessToken{
-		Token:  newSet.AccessToken,
-		Secret: newSet.AccessTokenSecret,
+		Token:  keySet.AccessToken,
+		Secret: keySet.AccessTokenSecret,
 	}
 	//generate a client using costumer and user keys
 	client, err := costumer.MakeHttpClient(&user)
