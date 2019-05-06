@@ -10,7 +10,15 @@ import (
 )
 
 //Authenticate a new user
-func Authenticate(consumerKey, consumerSecret string) (at, as string) {
+func Authenticate() (ck, cs, at, as string) {
+	//creates a new scanner for reading user input from CLI
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("enter the twitter api key")
+	scanner.Scan()
+	consumerKey := scanner.Text()
+	fmt.Println("enter the twitter api key secret")
+	scanner.Scan()
+	consumerSecret := scanner.Text()
 	//creates a new consumer to start the auth process
 	c := oauth.NewConsumer(
 		consumerKey,
@@ -43,5 +51,5 @@ func Authenticate(consumerKey, consumerSecret string) (at, as string) {
 	fmt.Println(tk.Token)
 	fmt.Println(tk.Secret)
 	//return the codes to generate the client and the conf file
-	return tk.Token, tk.Secret
+	return consumerKey, consumerSecret, tk.Token, tk.Secret
 }
