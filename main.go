@@ -27,12 +27,12 @@ func main() {
 	//parse the flags to use the flags content
 	flag.Parse()
 	//aks if wish to authenticate
-	if flag.NArg() == 0 {
+	if flag.NFlag() == 0 {
 		fmt.Println("do you wish to start a new authentication process? (y/n)")
 		scanner := bufio.NewScanner(os.Stdin)
-		fmt.Println("enter the twitter api key")
 		scanner.Scan()
 		authDecision := scanner.Text()
+		//switch cases of input
 		switch authDecision {
 		case "y":
 			//check if app folder exist
@@ -43,7 +43,7 @@ func main() {
 			fmt.Println(`now you are authenticated, next time use the -t followed by the "...tweet text...", exiting`)
 			os.Exit(0)
 		case "n":
-			fmt.Println(`ok, next time use the -t followed by the "...tweet text...", exiting`)
+			fmt.Println(`ok, exiting`)
 			os.Exit(0)
 		default:
 			fmt.Println("sorry, thats not an option, exiting now.")
@@ -52,13 +52,16 @@ func main() {
 	}
 	//crash the execution if using more than 1 argument
 	if flag.NArg() > 0 {
-		log.Fatalln(`the flag "t" only accepts 1 argument, check usage and use "" if necessary`)
+		fmt.Println(`the flag "t" only accepts 1 argument`)
+		os.Exit(0)
 	}
 	//validates the flag argument
 	if *tweetTag == "" {
-		log.Fatalln(`tweet empty, exiting`)
+		fmt.Println(`tweet empty, exiting`)
+		os.Exit(0)
 	} else if len(*tweetTag) > 280 {
-		log.Fatalln(`sorry, more than 280 characteres`)
+		fmt.Println(`sorry, more than 280 characteres`)
+		os.Exit(0)
 	}
 	//prints the flag content to the console for debugging purpouse
 	fmt.Println("tweet: ", *tweetTag)
@@ -92,7 +95,9 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	//prints the key content to the console for debugging purpouse
 	fmt.Println(keySet)
+
 	//------handling keys end------
 
 	//------handling auth ------
@@ -162,14 +167,12 @@ func createCfg(homedir string) {
 			"api_secret_key":"` + keySet.APISecretKey + `",
 			"access_token":"` + keySet.AccessToken + `",
 			"access_token_secret":"` + keySet.AccessTokenSecret + `"}`)
-	file.Sync()
-}
-
-func dummyKey() (ck, cs, at, as string){
-ck = "testeck"
-cs = "testecs"
-at = "testeat"
-as = "testeas"
-
-return ck, cs, at, as
+	err = file.Sync()
+	if err != nil {
+		log.Println(err)
+	}
+	err = file.Close()
+	if err != nil {
+		log.Println(err)
+	}
 }
