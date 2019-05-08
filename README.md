@@ -13,4 +13,4 @@ The app will not accept more than 1 argument, an empty tweet or flag without arg
 
 If you try to tweet 2 times the same thing, Twitter will not accept and will return an error.
 
-### Always remember, do not share your customers keys, if you do so, have in mind that only do with trusted people and that you will have the risk of it leaking on the web. I take no responsabilities on misusage. 
+### Always remember, do not share your customers keys, if you do so, have in mind that only do with trusted people and that you will have the risk of it leaking on the web. I take no responsibility on misusage. 
