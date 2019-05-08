@@ -64,7 +64,7 @@ func main() {
 		os.Exit(0)
 	}
 	//prints the flag content to the console for debugging purpouse
-	fmt.Println("tweet: ", *tweetTag)
+	// fmt.Println("tweet: ", *tweetTag)
 
 	//------handling tag end------
 
@@ -96,7 +96,7 @@ func main() {
 		fmt.Println(err.Error())
 	}
 	//prints the key content to the console for debugging purpouse
-	fmt.Println(keySet)
+	// fmt.Println(keySet)
 
 	//------handling keys end------
 

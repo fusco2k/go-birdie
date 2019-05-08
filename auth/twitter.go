@@ -13,10 +13,10 @@ import (
 func Authenticate() (ck, cs, at, as string) {
 	//creates a new scanner for reading user input from CLI
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("enter the twitter api key")
+	fmt.Println("enter the twitter api key:")
 	scanner.Scan()
 	consumerKey := scanner.Text()
-	fmt.Println("enter the twitter api key secret")
+	fmt.Println("enter the twitter api key secret:")
 	scanner.Scan()
 	consumerSecret := scanner.Text()
 	//creates a new consumer to start the auth process
@@ -39,7 +39,7 @@ func Authenticate() (ck, cs, at, as string) {
 	fmt.Println(requestURL)
 	//asks the pin confirmation
 	scan := bufio.NewScanner(os.Stdin)
-	fmt.Println("enter the twitter api key")
+	fmt.Println("enter the twitter validation code:")
 	scan.Scan()
 	verificationCode := scan.Text()
 	//process the auth token
@@ -47,9 +47,6 @@ func Authenticate() (ck, cs, at, as string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//shows the keys
-	fmt.Println(tk.Token)
-	fmt.Println(tk.Secret)
 	//return the codes to generate the client and the conf file
 	return consumerKey, consumerSecret, tk.Token, tk.Secret
 }
